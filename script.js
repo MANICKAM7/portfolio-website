@@ -56,23 +56,82 @@ const revealObserver = new IntersectionObserver((entries) => {
 
 revealElements.forEach(el => revealObserver.observe(el));
 
-// Form Submission (Simulated)
+/**
+ * Contact Form Submission Handling
+ * To activate live form submissions, developers can:
+ * 1. Register a free account at https://formspree.io/ or https://web3forms.com/
+ * 2. Replace the FORMSPREE_URL below with their form endpoint
+ */
+const FORMSPREE_URL = ""; // E.g., "https://formspree.io/f/your_form_id"
+
 const contactForm = document.getElementById('contact-form');
-contactForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const btn = contactForm.querySelector('button');
-    const originalText = btn.innerText;
-    
-    btn.innerText = 'Sending...';
-    btn.disabled = true;
-    
-    setTimeout(() => {
-        alert('Message sent successfully! (Demo mode)');
-        btn.innerText = originalText;
-        btn.disabled = false;
-        contactForm.reset();
-    }, 1500);
-});
+const formStatus = document.getElementById('form-status');
+
+if (contactForm && formStatus) {
+    contactForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const submitBtn = contactForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerText;
+        
+        // Disable button & show loading state
+        submitBtn.innerText = 'Sending...';
+        submitBtn.disabled = true;
+        
+        // Hide previous status message
+        formStatus.style.display = 'none';
+        formStatus.className = 'form-status';
+        
+        // Gather form data
+        const formData = new FormData(contactForm);
+        const data = Object.fromEntries(formData.entries());
+
+        // Check if a service URL is configured
+        if (!FORMSPREE_URL) {
+            // Simulated development / fallback mode
+            setTimeout(() => {
+                showFormStatus('success', 'Message sent successfully! (Simulated Mode - Set FORMSPREE_URL in script.js to receive live emails)');
+                submitBtn.innerText = originalBtnText;
+                submitBtn.disabled = false;
+                contactForm.reset();
+            }, 1000);
+            return;
+        }
+
+        try {
+            const response = await fetch(FORMSPREE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                showFormStatus('success', 'Thank you! Your message has been sent successfully.');
+                contactForm.reset();
+            } else {
+                const responseData = await response.json();
+                showFormStatus('error', responseData.error || 'Oops! There was a problem sending your message.');
+            }
+        } catch (error) {
+            console.error('Form submission error:', error);
+            showFormStatus('error', 'Oops! Could not connect to the server. Please try again later.');
+        } finally {
+            submitBtn.innerText = originalBtnText;
+            submitBtn.disabled = false;
+        }
+    });
+}
+
+// Helper function to display form status messages
+function showFormStatus(type, message) {
+    if (!formStatus) return;
+    formStatus.innerText = message;
+    formStatus.style.display = 'block';
+    formStatus.className = `form-status ${type}`;
+}
 
 // Navbar Scroll Effect
 window.addEventListener('scroll', () => {

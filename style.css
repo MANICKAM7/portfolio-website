@@ -55,7 +55,39 @@ a { text-decoration: none; color: inherit; transition: var(--transition); }
     transition: var(--transition);
 }
 .navbar .container { display: flex; justify-content: space-between; align-items: center; }
-.logo-text { font-size: 1.8rem; font-weight: 800; }
+.logo {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    z-index: 1;
+}
+.logo::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, var(--primary-color), #2dd4bf, var(--primary-color));
+    animation: rotateLogo 4s linear infinite;
+    z-index: -2;
+}
+.logo::after {
+    content: '';
+    position: absolute;
+    inset: 0px;
+    background: var(--bg-color);
+    border-radius: 50%;
+    z-index: -1;
+    transition: var(--transition);
+}
+@keyframes rotateLogo {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.logo-text { font-size: 1.6rem; font-weight: 800; color: var(--text-color); line-height: 1; }
 .logo-text span { color: var(--primary-color); }
 .nav-links { display: flex; gap: 2.5rem; }
 .nav-links a { font-weight: 500; color: var(--text-muted); }
@@ -411,4 +443,28 @@ a { text-decoration: none; color: inherit; transition: var(--transition); }
     .section { padding: 4rem 0; }
     .section-title { font-size: 2rem; }
     .contact-form-wrapper { padding: 2rem 1.5rem; }
+}
+
+/* Contact Form Feedback Styles */
+.form-status {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border-radius: 0.8rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-align: center;
+    display: none;
+    transition: var(--transition);
+}
+.form-status.success {
+    display: block;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid #10b981;
+    color: #10b981;
+}
+.form-status.error {
+    display: block;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid #ef4444;
+    color: #ef4444;
 }
